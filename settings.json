@@ -1,0 +1,14 @@
+{
+  "global_fee_rate": 0.02,
+  "group_settings": {
+    "8114375011": {
+      "fee_rate": 0.03,
+      "updated_at": "21/08/2025 16:46:21"
+    },
+    "-4984575188": {
+      "fee_rate": 0.02,
+      "updated_at": "21/08/2025 17:19:46"
+    }
+  },
+  "default_group_fee_rate": 0.02
+}

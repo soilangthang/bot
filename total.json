@@ -1,0 +1,30 @@
+{
+  "totalAmount": 0,
+  "totalFee": 0,
+  "transactions": [],
+  "transactionCount": 0,
+  "group_data": {
+    "8114375011": {
+      "totalAmount": 10000000,
+      "totalFee": 300000,
+      "transactions": [
+        {
+          "id": 1,
+          "amount": 10000000,
+          "fee": 300000,
+          "fee_rate": 0.03,
+          "timestamp": "21/08/2025 16:46:31",
+          "type": "manual",
+          "group_id": 8114375011
+        }
+      ],
+      "transactionCount": 1
+    },
+    "-4984575188": {
+      "totalAmount": 0,
+      "totalFee": 0,
+      "transactions": [],
+      "transactionCount": 0
+    }
+  }
+}
