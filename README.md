@@ -19,6 +19,8 @@ Bot Telegram được viết bằng Python sử dụng thư viện python-telegr
 
 ## Cài đặt
 
+### Cài đặt Local
+
 1. **Cài đặt Python dependencies:**
    ```bash
    pip install -r requirements.txt
@@ -35,9 +37,34 @@ Bot Telegram được viết bằng Python sử dụng thư viện python-telegr
    - Hoặc sử dụng bot @RawDataBot
 
 4. **Cấu hình bot:**
-   - Mở file `bot.py`
-   - Thay thế `YOUR_BOT_TOKEN_HERE` bằng token bot thực tế
-   - Thay thế `123456789` bằng ID admin thực tế
+   - Tạo file `.env` từ `.env.example`
+   - Cập nhật `BOT_TOKEN` và `ADMIN_IDS` trong file `.env`
+
+### Deploy lên Render
+
+1. **Fork hoặc clone repository này**
+
+2. **Tạo tài khoản Render:**
+   - Đăng ký tại [render.com](https://render.com)
+   - Kết nối với GitHub/GitLab
+
+3. **Tạo Web Service:**
+   - Chọn "New Web Service"
+   - Kết nối với repository
+   - Chọn branch (thường là `main`)
+
+4. **Cấu hình Environment Variables:**
+   - `BOT_TOKEN`: Token bot Telegram của bạn
+   - `ADMIN_IDS`: ID admin (có thể nhiều ID, phân cách bằng dấu phẩy)
+   - `ENVIRONMENT`: `production`
+
+5. **Cấu hình Build:**
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `python bot.py`
+
+6. **Deploy:**
+   - Click "Create Web Service"
+   - Render sẽ tự động build và deploy
 
 ## Sử dụng
 

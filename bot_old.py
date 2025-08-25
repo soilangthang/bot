@@ -136,9 +136,13 @@ def auto_reset_daily():
             reset_time = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
             print(f"🔄 [AUTO RESET] Đã tự động reset dữ liệu lúc {reset_time}")
             
-            # Gửi thông báo cho tất cả admin
+            # Gửi thông báo cho tất cả admin (sử dụng threading để tránh xung đột)
             def send_notifications():
                 try:
+                    import asyncio
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    
                     if 'bot_application' in globals():
                         for admin_id in ADMIN_IDS:
                             try:
@@ -149,6 +153,7 @@ def auto_reset_daily():
                                 )
                             except Exception as e:
                                 print(f"❌ Không thể gửi thông báo cho admin {admin_id}: {str(e)}")
+                    loop.close()
                 except Exception as e:
                     print(f"❌ Lỗi khi gửi thông báo: {str(e)}")
             
@@ -355,11 +360,19 @@ def create_settings_keyboard(chat_id):
         [
             InlineKeyboardButton("1%", callback_data="set_fee_0.01"),
             InlineKeyboardButton("2%", callback_data="set_fee_0.02"),
-            InlineKeyboardButton("3%", callback_data="set_fee_0.03")
+            InlineKeyboardButton("3%", callback_data="set_fee_0.03"),
+            InlineKeyboardButton("4%", callback_data="set_fee_0.04")
         ],
         [
             InlineKeyboardButton("5%", callback_data="set_fee_0.05"),
-            InlineKeyboardButton("10%", callback_data="set_fee_0.10"),
+            InlineKeyboardButton("6%", callback_data="set_fee_0.06"),
+            InlineKeyboardButton("7%", callback_data="set_fee_0.07"),
+            InlineKeyboardButton("8%", callback_data="set_fee_0.08"),
+            InlineKeyboardButton("9%", callback_data="set_fee_0.09"),
+            InlineKeyboardButton("10%", callback_data="set_fee_0.10")
+            InlineKeyboardButton("11%", callback_data="set_fee_0.11")
+            InlineKeyboardButton("12%", callback_data="set_fee_0.12")
+            InlineKeyboardButton("13%", callback_data="set_fee_0.13"),
             InlineKeyboardButton("15%", callback_data="set_fee_0.15")
         ],
         [
@@ -404,14 +417,14 @@ def button_callback(update: Update, context: CallbackContext):
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"""
                 try:
-                    query.edit_message_text(response, parse_mode='Markdown', reply_markup=create_admin_keyboard(chat_id))
+                    await query.edit_message_text(response, parse_mode='Markdown', reply_markup=create_admin_keyboard(chat_id))
                 except Exception as edit_error:
                     if "Message is not modified" in str(edit_error):
-                        query.answer("📊 Báo cáo tổng kết")
+                        await query.answer("📊 Báo cáo tổng kết")
                     else:
                         raise edit_error
             except Exception as e:
-                query.edit_message_text(f"❌ *Lỗi khi đọc dữ liệu:* {str(e)}", parse_mode='Markdown')
+                await query.edit_message_text(f"❌ *Lỗi khi đọc dữ liệu:* {str(e)}", parse_mode='Markdown')
         
         elif query.data == "reset":
             # Xác nhận reset
@@ -421,7 +434,7 @@ def button_callback(update: Update, context: CallbackContext):
                     InlineKeyboardButton("❌ Hủy", callback_data="back_to_main")
                 ]
             ]
-            query.edit_message_text(
+            await query.edit_message_text(
                 "⚠️ *XÁC NHẬN RESET*\n\nBạn có chắc chắn muốn reset tất cả dữ liệu?",
                 parse_mode='Markdown',
                 reply_markup=InlineKeyboardMarkup(keyboard)
@@ -438,18 +451,18 @@ def button_callback(update: Update, context: CallbackContext):
                 update_group_data(chat_id, group_data)
                 
                 try:
-                    query.edit_message_text(
+                    await query.edit_message_text(
                         "✅ *ĐÃ RESET THÀNH CÔNG*\n\nTất cả dữ liệu đã được reset về 0.",
                         parse_mode='Markdown',
                         reply_markup=create_admin_keyboard(chat_id)
                     )
                 except Exception as edit_error:
                     if "Message is not modified" in str(edit_error):
-                        query.answer("✅ Đã reset thành công")
+                        await query.answer("✅ Đã reset thành công")
                     else:
                         raise edit_error
             except Exception as e:
-                query.edit_message_text(f"❌ *Lỗi khi reset:* {str(e)}", parse_mode='Markdown')
+                await query.edit_message_text(f"❌ *Lỗi khi reset:* {str(e)}", parse_mode='Markdown')
         
         elif query.data == "history":
             try:
@@ -479,14 +492,14 @@ def button_callback(update: Update, context: CallbackContext):
                     response += f"\n📊 **Tổng:** {len(transactions)} giao dịch"
                 
                 try:
-                    query.edit_message_text(response, parse_mode='Markdown', reply_markup=create_admin_keyboard(chat_id))
+                    await query.edit_message_text(response, parse_mode='Markdown', reply_markup=create_admin_keyboard(chat_id))
                 except Exception as edit_error:
                     if "Message is not modified" in str(edit_error):
-                        query.answer("📋 Lịch sử giao dịch")
+                        await query.answer("📋 Lịch sử giao dịch")
                     else:
                         raise edit_error
             except Exception as e:
-                query.edit_message_text(f"❌ *Lỗi khi đọc lịch sử:* {str(e)}", parse_mode='Markdown')
+                await query.edit_message_text(f"❌ *Lỗi khi đọc lịch sử:* {str(e)}", parse_mode='Markdown')
         
         elif query.data == "reset_time":
              try:
@@ -514,14 +527,14 @@ def button_callback(update: Update, context: CallbackContext):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"""
                  
                  try:
-                     query.edit_message_text(response, parse_mode='Markdown', reply_markup=create_admin_keyboard(chat_id))
+                     await query.edit_message_text(response, parse_mode='Markdown', reply_markup=create_admin_keyboard(chat_id))
                  except Exception as edit_error:
                      if "Message is not modified" in str(edit_error):
-                         query.answer("⏰ Thời gian reset")
+                         await query.answer("⏰ Thời gian reset")
                      else:
                          raise edit_error
              except Exception as e:
-                 query.edit_message_text(f"❌ *Lỗi:* {str(e)}", parse_mode='Markdown')
+                 await query.edit_message_text(f"❌ *Lỗi:* {str(e)}", parse_mode='Markdown')
         
         elif query.data == "settings":
             try:
@@ -535,9 +548,9 @@ def button_callback(update: Update, context: CallbackContext):
 Chọn mức phí mới cho nhóm này:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"""
-                query.edit_message_text(response, parse_mode='Markdown', reply_markup=create_settings_keyboard(chat_id))
+                await query.edit_message_text(response, parse_mode='Markdown', reply_markup=create_settings_keyboard(chat_id))
             except Exception as e:
-                query.edit_message_text(f"❌ *Lỗi:* {str(e)}", parse_mode='Markdown')
+                await query.edit_message_text(f"❌ *Lỗi:* {str(e)}", parse_mode='Markdown')
         
         elif query.data.startswith("set_fee_"):
             try:
@@ -561,9 +574,9 @@ Chọn mức phí mới cho nhóm này:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ✅ *CÀI ĐẶT ĐÃ ĐƯỢC LƯU THÀNH CÔNG!* ✅"""
-                query.edit_message_text(response, parse_mode='Markdown', reply_markup=create_admin_keyboard(chat_id))
+                await query.edit_message_text(response, parse_mode='Markdown', reply_markup=create_admin_keyboard(chat_id))
             except Exception as e:
-                query.edit_message_text(f"❌ *Lỗi khi cập nhật phí:* {str(e)}", parse_mode='Markdown')
+                await query.edit_message_text(f"❌ *Lỗi khi cập nhật phí:* {str(e)}", parse_mode='Markdown')
         
         elif query.data == "current_fee":
             try:
@@ -592,9 +605,9 @@ Chọn mức phí mới cho nhóm này:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"""
                 
-                query.edit_message_text(response, parse_mode='Markdown', reply_markup=create_settings_keyboard(chat_id))
+                await query.edit_message_text(response, parse_mode='Markdown', reply_markup=create_settings_keyboard(chat_id))
             except Exception as e:
-                query.edit_message_text(f"❌ *Lỗi:* {str(e)}", parse_mode='Markdown')
+                await query.edit_message_text(f"❌ *Lỗi:* {str(e)}", parse_mode='Markdown')
           
         elif query.data == "help":
             help_text = """🤖 *HƯỚNG DẪN SỬ DỤNG* 🤖
@@ -626,23 +639,23 @@ Chọn mức phí mới cho nhóm này:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"""
             try:
-                query.edit_message_text(help_text, parse_mode='Markdown', reply_markup=create_admin_keyboard(chat_id))
+                await query.edit_message_text(help_text, parse_mode='Markdown', reply_markup=create_admin_keyboard(chat_id))
             except Exception as edit_error:
                 if "Message is not modified" in str(edit_error):
-                    query.answer("ℹ️ Hướng dẫn sử dụng")
+                    await query.answer("ℹ️ Hướng dẫn sử dụng")
                 else:
                     raise edit_error
         
         elif query.data == "back_to_main":
             try:
-                query.edit_message_text(
+                await query.edit_message_text(
                     "🤖 *BOT QUẢN LÝ TIỀN*\n\nChọn chức năng bạn muốn sử dụng:",
                     parse_mode='Markdown',
                     reply_markup=create_admin_keyboard(chat_id)
                 )
             except Exception as edit_error:
                 if "Message is not modified" in str(edit_error):
-                    query.answer("🔙 Quay lại menu chính")
+                    await query.answer("🔙 Quay lại menu chính")
                 else:
                     raise edit_error
                 
